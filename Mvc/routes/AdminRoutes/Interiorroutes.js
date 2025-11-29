@@ -9,8 +9,8 @@ const {
 } = require("../../Controller/AdminController/AdmininteriorController");
 const { upload } = require("../../../cloudinary");
 
-Interiorroute.post("/addproperty", verifyToken,upload.single("images"), Addinteriorproperty);
+Interiorroute.post("/addproperty", verifyToken,  upload.array("images", 10), Addinteriorproperty);
 Interiorroute.get("/fetchproperty", verifyToken, Fetchinteriorproperty);
 Interiorroute.delete("/deleteproperty/:id", verifyToken, Deleteinteriorproperty);
-Interiorroute.put("/updateproperty/:id", verifyToken,upload.single("images"), Updateinteriorproperty);
+Interiorroute.put("/updateproperty/:id", verifyToken, upload.array("images", 10),  Updateinteriorproperty);
 module.exports = Interiorroute;

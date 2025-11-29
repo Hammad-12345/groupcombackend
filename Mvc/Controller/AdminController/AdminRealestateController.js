@@ -2,9 +2,6 @@ const RealEstate = require("../../Model/RealStateModel");
 
 const Addrealestateproperty = async (req, res) => {
   try {
-    // User info from token
-    //   const userId = req.user.id; // coming from JWT middleware
-
     const {
       title,
       type,
@@ -17,8 +14,16 @@ const Addrealestateproperty = async (req, res) => {
       size,
       description,
     } = req.body;
-    const imageUrl = req.file?.path;
-    // Validate required fields
+
+    // Convert numeric fields
+    const numericFields = {
+      price: Number(price),
+      bedrooms: Number(bedrooms),
+      bathrooms: Number(bathrooms),
+      size: Number(size),
+    };
+
+    // Validation
     if (
       !title ||
       !type ||
@@ -37,29 +42,33 @@ const Addrealestateproperty = async (req, res) => {
       });
     }
 
-    //   TODO: Replace this with MongoDB save logic
-    //   Example:
+    // ⭐ Handle Multiple Images (req.files)
+    const imageUrls = req.files?.map((file) => file.path) || [];
+
     const property = new RealEstate({
       title,
       type,
       purpose,
       city,
       area,
-      price,
-      bedrooms,
-      bathrooms,
-      size,
+      price: numericFields.price,
+      bedrooms: numericFields.bedrooms,
+      bathrooms: numericFields.bathrooms,
+      size: numericFields.size,
       description,
-      images:imageUrl
+      images: imageUrls, // Save array
     });
+
     await property.save();
 
     return res.status(200).json({
       success: true,
       message: "Property added successfully!",
-      data: req.body,
+      data: property,
     });
   } catch (error) {
+    console.error("Error adding property:", error);
+
     return res.status(500).json({
       success: false,
       message: "Something went wrong.",
@@ -151,16 +160,25 @@ const Deleterealestateproperty = async (req, res) => {
 const Updaterealestateproperty = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = { ...req.body }; // copy body data
-    // Add image URL if a file was uploaded
-    if (req.file?.path) {
-      updateData.images = req.file.path;
+
+    const updateData = { ...req.body };
+
+    // If frontend sends price, bedrooms etc. as strings, convert to numbers
+    if (updateData.price) updateData.price = Number(updateData.price);
+    if (updateData.bedrooms) updateData.bedrooms = Number(updateData.bedrooms);
+    if (updateData.bathrooms) updateData.bathrooms = Number(updateData.bathrooms);
+    if (updateData.size) updateData.size = Number(updateData.size);
+
+    // ⭐ Handle Multiple Uploaded Images
+    if (req.files && req.files.length > 0) {
+      updateData.images = req.files.map((file) => file.path);
     }
 
+    console.log("Update Data:", updateData);
     const updatedProperty = await RealEstate.findByIdAndUpdate(
       id,
       updateData,
-      { new: true } // return the updated document
+      { new: true }
     );
 
     if (!updatedProperty) {
@@ -172,10 +190,13 @@ const Updaterealestateproperty = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Property updated successfully",
+      message: "Property updated successfully!",
       data: updatedProperty,
     });
+
   } catch (error) {
+    console.error("Update Error:", error);
+
     res.status(500).json({
       success: false,
       message: "Server error while updating property",

@@ -2,9 +2,6 @@ const InteriorModel = require("../../Model/InteriorModel");
 
 const Addinteriorproperty = async (req, res) => {
   try {
-    // User info from token
-    //   const userId = req.user.id; // coming from JWT middleware
-
     const {
       title,
       category,
@@ -17,7 +14,10 @@ const Addinteriorproperty = async (req, res) => {
       duration,
       description,
     } = req.body;
-    const imageUrl = req.file?.path;
+
+    // ⭐ Multiple image URLs
+    const imageUrls = req.files ? req.files.map((file) => file.path) : [];
+    console.log("Uploaded Images:", imageUrls);
     // Validate required fields
     if (
       !title ||
@@ -37,8 +37,7 @@ const Addinteriorproperty = async (req, res) => {
       });
     }
 
-    //   TODO: Replace this with MongoDB save logic
-    //   Example:
+    // Save to DB
     const property = new InteriorModel({
       title,
       category,
@@ -50,15 +49,17 @@ const Addinteriorproperty = async (req, res) => {
       materials,
       duration,
       description,
-      images:imageUrl
+      images: imageUrls, // ⭐ Store multiple image URLs
     });
+
     await property.save();
 
     return res.status(200).json({
       success: true,
-      message: "Interior Property added successfully!",
-      data: req.body,
+      message: "Interior property added successfully!",
+      data: property,
     });
+
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -67,7 +68,6 @@ const Addinteriorproperty = async (req, res) => {
     });
   }
 };
-
 const Fetchinteriorproperty = async (req, res) => {
   try {
     let properties = await InteriorModel.find().sort({ createdAt: -1 }).lean();
@@ -147,23 +147,23 @@ const Deleteinteriorproperty = async (req, res) => {
 const Updateinteriorproperty = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = { ...req.body }; // copy body data
-    if (req.file?.path) {
-      updateData.images = req.file.path;
+
+    // Step 1: Spread all text fields
+    const updateData = { ...req.body };
+
+     if (req.files && req.files.length > 0) {
+      updateData.images = req.files ? req.files.map((file) => file.path) : [];
     }
 
+    
+    console.log("Updated Images Array:", updateData.images);
+
+    // Step 5: Update property
     const updatedProperty = await InteriorModel.findByIdAndUpdate(
       id,
       updateData,
-      { new: true } // return the updated document
+      { new: true }
     );
-
-    if (!updatedProperty) {
-      return res.status(404).json({
-        success: false,
-        message: "Property not found",
-      });
-    }
 
     res.status(200).json({
       success: true,
@@ -178,6 +178,7 @@ const Updateinteriorproperty = async (req, res) => {
     });
   }
 };
+
 module.exports = {
   Addinteriorproperty,
   Fetchinteriorproperty,

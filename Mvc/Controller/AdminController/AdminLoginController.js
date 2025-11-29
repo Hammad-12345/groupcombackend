@@ -14,7 +14,6 @@ const AdminLogin = async (req, res) => {
 
     // Find admin in MongoDB AdminLogin collection
     const admin = await AdminLoginModel.findOne({ username:username });
-    console.log(admin)
     if (!admin) {
       return res.status(401).json({
         success: false,

@@ -10,10 +10,35 @@ const { upload } = require("../../../cloudinary");
 
 const Realestateroute = express.Router();
 
-// Protected Route
-Realestateroute.post("/addproperty", verifyToken,upload.single("images"), Addrealestateproperty);
-Realestateroute.get("/fetchproperty", verifyToken, Fetchrealestateproperty);
-Realestateroute.delete("/deleteproperty/:id", verifyToken, Deleterealestateproperty);
-Realestateroute.put("/updateproperty/:id", verifyToken, upload.single("images"), Updaterealestateproperty);
+// Add multiple images
+Realestateroute.post(
+  "/addproperty",
+  verifyToken,
+  upload.array("images", 10),          // ⬅️ Multiple Images
+  Addrealestateproperty
+);
+
+// Fetch properties
+Realestateroute.get(
+  "/fetchproperty",
+  verifyToken,
+  Fetchrealestateproperty
+);
+
+// Delete property
+Realestateroute.delete(
+  "/deleteproperty/:id",
+  verifyToken,
+  Deleterealestateproperty
+);
+
+// Update property + multiple images
+Realestateroute.put(
+  "/updateproperty/:id",
+  verifyToken,
+  upload.array("images", 10),         // ⬅️ Multiple Images
+  Updaterealestateproperty
+);
 
 module.exports = Realestateroute;
+  

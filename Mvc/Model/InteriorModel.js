@@ -61,10 +61,11 @@ const InteriorSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-     // ⭐ Add Images (Array)
-     images: {
-      type: String, // will store image URLs
+    // ⭐ Add Images (Array)
+    images: {
+      type: [String],   // ⬅️ Array of image URLs
       required: false,
+      default: [],
     },
   },
   {

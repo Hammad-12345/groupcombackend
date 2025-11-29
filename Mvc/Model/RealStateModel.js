@@ -16,7 +16,7 @@ const RealEstateSchema = new mongoose.Schema(
     purpose: {
       type: String,
       required: true,
-      enum: ["Sale","Rent","Buy"],
+      enum: ["Sale", "Rent", "Commercial", "Off Plan"],
     },
 
     city: {
@@ -59,8 +59,9 @@ const RealEstateSchema = new mongoose.Schema(
     },
     // ⭐ Add Images (Array)
     images: {
-      type: String, // will store image URLs
+      type: [String],   // ⬅️ Array of image URLs
       required: false,
+      default: [],
     },
   },
   {
