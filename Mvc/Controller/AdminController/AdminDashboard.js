@@ -10,6 +10,8 @@ const AdminDashboardSummary = async (req, res) => {
     // Filter sale and rent properties
     const availableForSale = allRealEstate.filter(prop => prop.purpose === "Sale");
     const rentedProperties = allRealEstate.filter(prop => prop.purpose === "Rent");
+    const commercialProperties = allRealEstate.filter(prop => prop.purpose === "Commercial");
+    const OffPlanProperties = allRealEstate.filter(prop => prop.purpose === "Off Plan");
 
     // Fetch all interior projects
     const allInteriorProjects = await Interior.find().lean();
@@ -24,6 +26,8 @@ const AdminDashboardSummary = async (req, res) => {
           properties: allRealEstate,
           availableForSale,
           rentedProperties,
+          commercialProperties,
+          OffPlanProperties
         },
         interior: {
           totalCount: totalInteriorCount,
